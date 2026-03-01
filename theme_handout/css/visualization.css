@@ -1,0 +1,634 @@
+/* ═══════════════════════════════════════════════════════════
+   Sigma Visualization — Shared Styles
+   Reusable gauge, sparkline, and mini-bar styling.
+   All colors reference tokens.css variables.
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Ring Gauge ───────────────────────────────────────────── */
+
+.viz-ring-gauge {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.viz-ring-gauge__svg {
+    filter: drop-shadow(0 0 8px var(--viz-glow-color));
+    transition: filter var(--viz-transition-speed) linear;
+}
+
+.viz-ring-gauge__svg--warning {
+    filter: drop-shadow(0 0 8px var(--viz-glow-warning));
+}
+
+.viz-ring-gauge__svg--critical {
+    filter: drop-shadow(0 0 10px var(--viz-glow-critical));
+}
+
+.viz-ring-gauge__track {
+    fill: none;
+    stroke: rgba(var(--sigma-border-rgb), 0.1);
+}
+
+.viz-ring-gauge__fill {
+    fill: none;
+    stroke: var(--color-accent-blue);
+    stroke-linecap: round;
+    transition:
+        stroke-dashoffset var(--viz-transition-speed) linear,
+        stroke var(--viz-transition-speed) linear;
+}
+
+.viz-ring-gauge__fill--warning {
+    stroke: var(--color-warning);
+}
+
+.viz-ring-gauge__fill--critical {
+    stroke: var(--color-negative);
+}
+
+.viz-ring-gauge__label {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    pointer-events: none;
+}
+
+.viz-ring-gauge__title {
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--color-fg-dim);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.viz-ring-gauge__pct {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--color-fg);
+    font-family: "JetBrains Mono", monospace;
+    line-height: 1;
+}
+
+.viz-ring-gauge__sub {
+    font-size: 9px;
+    color: var(--color-fg-dim);
+    font-family: "JetBrains Mono", monospace;
+}
+
+/* ── Sparkline ────────────────────────────────────────────── */
+
+.viz-sparkline {
+    width: 100%;
+    height: var(--viz-sparkline-height);
+    display: block;
+}
+
+.viz-sparkline__line {
+    fill: none;
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+}
+
+.viz-sparkline__area {
+    opacity: 1;
+}
+
+.viz-sparkline__group {
+    transition: transform var(--viz-transition-speed) linear;
+}
+
+/* ── Mini Bar ─────────────────────────────────────────────── */
+
+.viz-mini-bar {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 12px;
+}
+
+.viz-mini-bar__label {
+    font-size: 8px;
+    font-family: "JetBrains Mono", monospace;
+    color: var(--color-fg-dim);
+    min-width: 18px;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.viz-mini-bar__track {
+    flex: 1;
+    height: 4px;
+    background: rgba(var(--sigma-border-rgb), 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.viz-mini-bar__fill {
+    height: 100%;
+    border-radius: 2px;
+    background: var(--color-accent-blue);
+    transition:
+        width var(--viz-transition-speed) linear,
+        background var(--viz-transition-speed) linear;
+}
+
+.viz-mini-bar__fill--warning {
+    background: var(--color-warning);
+}
+
+.viz-mini-bar__fill--critical {
+    background: var(--color-negative);
+}
+
+/* ── Section container ────────────────────────────────────── */
+
+.viz-section {
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba(var(--sigma-border-rgb), 0.08);
+}
+
+.viz-section__title {
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--color-fg-dim);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+/* ── Dual sparkline (RX/TX overlay) ──────────────────────── */
+
+.viz-sparkline-dual {
+    position: relative;
+    width: 100%;
+    height: var(--viz-sparkline-height);
+}
+
+.viz-sparkline-dual__labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+    font-family: "JetBrains Mono", monospace;
+    padding: 0 2px;
+    margin-top: 2px;
+}
+
+.viz-sparkline-dual__rx {
+    color: var(--color-accent-blue);
+}
+
+.viz-sparkline-dual__tx {
+    color: var(--color-accent-purple);
+}
+
+/* ── Signal Beacon — CSS-only 연결 상태 인디케이터 ─────────── */
+
+.viz-beacon {
+    --viz-beacon-size: 22px;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+    flex-shrink: 0;
+    width: var(--viz-beacon-size);
+    height: var(--viz-beacon-size);
+}
+
+/* 중심 점 — 컨테이너의 1/5 크기 */
+.viz-beacon::before {
+    content: '';
+    width: 20%;
+    height: 20%;
+    border-radius: 50%;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.viz-beacon__ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid currentColor;
+    opacity: 0;
+}
+
+/*
+ * 3점사 burst 설계:
+ *             growth  sleep  total  growth%
+ * on(normal):  2.0s   3.0s   5.0s   40%
+ * re(warning): 0.5s   0.5s   1.0s   50%
+ * dis(critical):1.0s  1.0s   2.0s   50%
+ * alert(live): 1.0s   2.0s   3.0s   33%
+ *
+ * 밝기: re(0.9) > dis(0.6) > on(0.4)
+ */
+
+/* ═══ NORMAL (connected): 느린 확산, 긴 sleep(3s) ═══ */
+.viz-beacon--normal::before {
+    background-color: var(--color-positive);
+    box-shadow: 0 0 2px 0px var(--color-positive);
+    opacity: 0.5;
+}
+
+.viz-beacon--normal .viz-beacon__ring {
+    color: var(--color-positive);
+    animation: beacon-burst-dim 5s ease-out infinite;
+}
+
+.viz-beacon--normal .viz-beacon__ring--1 {
+    animation-delay: 0s;
+}
+
+.viz-beacon--normal .viz-beacon__ring--2 {
+    animation-delay: 0.5s;
+}
+
+/* ═══ ALERT (live): red burst ═══ */
+.viz-beacon--alert::before {
+    background-color: var(--color-negative);
+    box-shadow: 0 0 4px 1px var(--color-negative);
+}
+
+.viz-beacon--alert .viz-beacon__ring {
+    color: var(--color-negative);
+    animation: beacon-burst-alert 3s ease-out infinite;
+}
+
+.viz-beacon--alert .viz-beacon__ring--1 {
+    animation-delay: 0s;
+}
+
+.viz-beacon--alert .viz-beacon__ring--2 {
+    animation-delay: 0.2s;
+}
+
+.viz-beacon--alert .viz-beacon__ring--3 {
+    animation-delay: 0.4s;
+}
+
+/* ═══ WARNING (reconnecting): 연속 ring 송출 (burst 없음) ═══ */
+.viz-beacon--warning::before {
+    background-color: var(--color-warning);
+    box-shadow: 0 0 5px 2px var(--color-warning);
+    opacity: 0.5;
+}
+
+.viz-beacon--warning .viz-beacon__ring {
+    color: var(--color-warning);
+    animation: beacon-ripple 1.5s ease-out infinite;
+}
+
+.viz-beacon--warning .viz-beacon__ring--1 {
+    animation-delay: 0s;
+}
+
+.viz-beacon--warning .viz-beacon__ring--2 {
+    animation-delay: 0.3s;
+}
+
+.viz-beacon--warning .viz-beacon__ring--3 {
+    animation-delay: 0.6s;
+}
+
+.viz-beacon--warning .viz-beacon__ring--4 {
+    animation-delay: 0.9s;
+}
+
+.viz-beacon--warning .viz-beacon__ring--5 {
+    animation-delay: 1.2s;
+}
+
+/* ═══ CRITICAL (disconnected): 링 없음, 3점사 깜빡임 (1 1 1 0) ═══ */
+.viz-beacon--critical::before {
+    background-color: var(--color-negative);
+    box-shadow: 0 0 4px 1px var(--color-negative);
+    animation: beacon-blink-burst 3s ease-in-out infinite;
+}
+
+/* ── Keyframes ── */
+
+/* 연속 리플 (warning) — sleep 없이 계속 확산 */
+@keyframes beacon-ripple {
+    0% {
+        inset: 35%;
+        opacity: 0.9;
+    }
+
+    100% {
+        inset: -20%;
+        opacity: 0;
+    }
+}
+
+/* 3점사 깜빡임 (critical) — 111 000 리듬 (6 beats) */
+@keyframes beacon-blink-burst {
+    0% {
+        opacity: 0.85;
+    }
+
+    8% {
+        opacity: 0.15;
+    }
+
+    17% {
+        opacity: 0.85;
+    }
+
+    25% {
+        opacity: 0.15;
+    }
+
+    33% {
+        opacity: 0.85;
+    }
+
+    42% {
+        opacity: 0.15;
+    }
+
+    42.1%,
+    100% {
+        opacity: 0.15;
+    }
+}
+
+/* ── Burst Keyframes ── */
+
+/* re: 50% growth (0.5s/1s) — 빠른 확산, 최고 밝기 */
+@keyframes beacon-burst-bright {
+    0% {
+        inset: 35%;
+        opacity: 0.9;
+    }
+
+    50% {
+        inset: 2%;
+        opacity: 0;
+    }
+
+    50.1%,
+    100% {
+        inset: 35%;
+        opacity: 0;
+    }
+}
+
+/* dis: 50% growth (1s/2s) — 중간 확산, 중간 밝기 */
+@keyframes beacon-burst-mid {
+    0% {
+        inset: 35%;
+        opacity: 0.6;
+    }
+
+    50% {
+        inset: 2%;
+        opacity: 0;
+    }
+
+    50.1%,
+    100% {
+        inset: 35%;
+        opacity: 0;
+    }
+}
+
+/* on: 40% growth (2s/5s) — 밝게 유지하다 소멸 직전 급속 dim */
+@keyframes beacon-burst-dim {
+    0% {
+        inset: 35%;
+        opacity: 0.7;
+    }
+
+    15% {
+        inset: 7%;
+        opacity: 0.6;
+    }
+
+    40% {
+        inset: 2%;
+        opacity: 0;
+    }
+
+    40.1%,
+    100% {
+        inset: 35%;
+        opacity: 0;
+    }
+}
+
+/* alert: 33% growth (1s/3s) */
+@keyframes beacon-burst-alert {
+    0% {
+        inset: 35%;
+        opacity: 0.7;
+    }
+
+    33% {
+        inset: 2%;
+        opacity: 0;
+    }
+
+    33.1%,
+    100% {
+        inset: 35%;
+        opacity: 0;
+    }
+}
+
+@keyframes beacon-flicker {
+
+    0%,
+    100% {
+        opacity: 0.9;
+    }
+
+    25% {
+        opacity: 0.4;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    75% {
+        opacity: 0.3;
+    }
+}
+
+/* 번개 플래시 — 스파크가 번쩍이며 나타났다 사라짐 */
+@keyframes viz-lightning-flash {
+    0% {
+        opacity: 0;
+        stroke-dashoffset: 8;
+    }
+
+    15% {
+        opacity: 0.9;
+        stroke-dashoffset: 0;
+    }
+
+    30% {
+        opacity: 0;
+    }
+
+    60% {
+        opacity: 0.7;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+/* 아크 글로우 — 접합부에서 빛이 퍼졌다 사라짐 */
+@keyframes viz-arc-pulse {
+    0% {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+
+    20% {
+        opacity: 0.5;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0;
+        transform: scale(1.5);
+    }
+
+    100% {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+}
+
+/* 노드 glow 소프트 깜빡 (warning) */
+@keyframes viz-spark {
+    from {
+        filter: drop-shadow(0 0 2px var(--color-warning));
+        transform: scale(1);
+    }
+
+    to {
+        filter: drop-shadow(0 0 5px var(--viz-glow-warning));
+        transform: scale(1.1);
+    }
+}
+
+/* 강렬한 scale+glow 폭발 (critical) */
+@keyframes viz-discharge {
+    from {
+        filter: drop-shadow(0 0 3px var(--color-negative));
+        transform: scale(1);
+    }
+
+    to {
+        filter: drop-shadow(0 0 8px var(--viz-glow-critical));
+        transform: scale(1.25);
+    }
+}
+
+/* Trace opacity 불규칙 깜빡 (warning) */
+@keyframes viz-flicker {
+
+    0%,
+    100% {
+        opacity: 0.35;
+    }
+
+    25% {
+        opacity: 0.15;
+    }
+
+    50% {
+        opacity: 0.4;
+    }
+
+    75% {
+        opacity: 0.1;
+    }
+}
+
+/* Trace 위치 미세 떨림 (critical glitch) */
+@keyframes viz-glitch {
+    0% {
+        transform: translateX(0);
+    }
+
+    33% {
+        transform: translateX(0.5px);
+    }
+
+    66% {
+        transform: translateX(-0.5px);
+    }
+
+    100% {
+        transform: translateX(0);
+    }
+}
+
+/* Live mode 미세 breathing */
+@keyframes viz-live-breathe {
+
+    0%,
+    100% {
+        filter: drop-shadow(0 0 2px var(--color-negative));
+        opacity: 0.8;
+    }
+
+    50% {
+        filter: drop-shadow(0 0 4px var(--color-negative));
+        opacity: 1;
+    }
+}
+
+/* ── Status Badge ─────────────────────────────────────────── */
+
+.viz-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 1px 6px 1px 2px;
+    border-radius: 4px;
+    background: rgba(var(--sigma-border-rgb), 0.06);
+    line-height: 1;
+}
+
+.viz-status-badge__label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+}
+
+/* Badge 라벨 색상 — severity별 */
+.viz-status-badge--connected .viz-status-badge__label,
+.viz-status-badge--healthy .viz-status-badge__label,
+.viz-status-badge--paper .viz-status-badge__label {
+    color: var(--color-positive);
+}
+
+.viz-status-badge--reconnecting .viz-status-badge__label,
+.viz-status-badge--degraded .viz-status-badge__label {
+    color: var(--color-warning);
+}
+
+.viz-status-badge--disconnected .viz-status-badge__label,
+.viz-status-badge--dead .viz-status-badge__label {
+    color: var(--color-negative);
+}
+
+.viz-status-badge--live .viz-status-badge__label {
+    color: var(--color-negative);
+}

@@ -1,0 +1,233 @@
+/* ═══════════════════════════════════════════
+   BackgroundVFX — Aurora Orbs Preset
+   3-Layer stack: Base + VFX + Blur
+   Extracted from Sigma theme_handout
+   ═══════════════════════════════════════════ */
+
+/* ── Tint Overlay (body::before) ── */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-color: var(--sigma-tint-color, transparent);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* ── Base Layer — 어두운 배경 ── */
+.sigma-bg-base {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background: var(--sigma-vfx-bg-color, #0f0f17);
+    opacity: var(--sigma-vfx-bg-opacity, 0.85);
+}
+
+/* ── VFX Layer — 이펙트 ── */
+.sigma-bg-vfx {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: var(--sigma-vfx-opacity, 0.35);
+}
+
+/* Noise dithering — color banding 방지 */
+.sigma-bg-vfx::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    filter: url(#sigma-noise);
+    opacity: 0.05;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+}
+
+/* ── Blur Layer — frosted glass ── */
+.sigma-bg-blur {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background: transparent;
+    backdrop-filter: var(--sigma-vfx-blur, none);
+    -webkit-backdrop-filter: var(--sigma-vfx-blur, none);
+}
+
+/* ═══════════════════════════════════════════
+   Aurora Orbs
+   3 color orbs floating across screen
+   Blue / Purple / Cyan — Tokyo Night accents
+   GPU-efficient: transform-only animation
+   ═══════════════════════════════════════════ */
+.sigma-bg-vfx--aurora-orbs {
+    background: transparent;
+    overflow: hidden;
+}
+
+.sigma-aurora-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    will-change: transform;
+}
+
+/* Blue orb */
+.sigma-aurora-orb--blue {
+    width: 60vmax;
+    height: 60vmax;
+    top: -15%;
+    left: -10%;
+    background: radial-gradient(circle, rgba(50, 100, 220, 0.40) 0%, transparent 70%);
+    animation: sigma-aurora-flow-blue 160s ease-in-out infinite;
+}
+
+/* Purple orb */
+.sigma-aurora-orb--purple {
+    width: 65vmax;
+    height: 65vmax;
+    bottom: -20%;
+    right: -10%;
+    background: radial-gradient(circle, rgba(120, 70, 210, 0.35) 0%, transparent 70%);
+    animation: sigma-aurora-flow-purple 200s ease-in-out infinite;
+}
+
+/* Cyan orb */
+.sigma-aurora-orb--cyan {
+    width: 50vmax;
+    height: 50vmax;
+    top: 20%;
+    left: 25%;
+    background: radial-gradient(circle, rgba(30, 150, 210, 0.30) 0%, transparent 70%);
+    animation: sigma-aurora-flow-cyan 150s ease-in-out infinite;
+}
+
+/* Blue keyframes */
+@keyframes sigma-aurora-flow-blue {
+    0% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    18% {
+        transform: translate(15%, 5%) scale(1.05);
+    }
+
+    20% {
+        transform: translate(45%, 30%) scale(0.95);
+    }
+
+    38% {
+        transform: translate(75%, 60%) scale(1.1);
+    }
+
+    48% {
+        transform: translate(70%, 55%) scale(1.05);
+    }
+
+    58% {
+        transform: translate(65%, -5%) scale(0.9);
+    }
+
+    60% {
+        transform: translate(35%, 25%) scale(1);
+    }
+
+    78% {
+        transform: translate(-5%, 60%) scale(1.15);
+    }
+
+    88% {
+        transform: translate(-10%, 45%) scale(1.05);
+    }
+
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+}
+
+/* Purple keyframes */
+@keyframes sigma-aurora-flow-purple {
+    0% {
+        transform: translate(0, 0) scale(1.05);
+    }
+
+    15% {
+        transform: translate(-15%, -10%) scale(1);
+    }
+
+    17% {
+        transform: translate(-40%, -35%) scale(0.95);
+    }
+
+    35% {
+        transform: translate(-70%, -55%) scale(1.1);
+    }
+
+    45% {
+        transform: translate(-65%, -50%) scale(1.05);
+    }
+
+    55% {
+        transform: translate(-60%, 10%) scale(0.9);
+    }
+
+    57% {
+        transform: translate(-30%, -20%) scale(1);
+    }
+
+    75% {
+        transform: translate(10%, -60%) scale(1.1);
+    }
+
+    88% {
+        transform: translate(5%, -40%) scale(1.05);
+    }
+
+    100% {
+        transform: translate(0, 0) scale(1.05);
+    }
+}
+
+/* Cyan keyframes */
+@keyframes sigma-aurora-flow-cyan {
+    0% {
+        transform: translate(0, 0) scale(0.9);
+    }
+
+    20% {
+        transform: translate(40%, -30%) scale(1.05);
+    }
+
+    28% {
+        transform: translate(45%, -35%) scale(1.1);
+    }
+
+    30% {
+        transform: translate(15%, -5%) scale(0.95);
+    }
+
+    48% {
+        transform: translate(-30%, 35%) scale(1.15);
+    }
+
+    58% {
+        transform: translate(-25%, 40%) scale(1.1);
+    }
+
+    60% {
+        transform: translate(5%, 10%) scale(0.9);
+    }
+
+    78% {
+        transform: translate(35%, 30%) scale(1.05);
+    }
+
+    88% {
+        transform: translate(30%, 25%) scale(1);
+    }
+
+    100% {
+        transform: translate(0, 0) scale(0.9);
+    }
+}

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>🐄 농도원 목장 모니터</title>
+
+  <!-- Inter Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Sigma Theme CSS (order matters) -->
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="aurora-vfx.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <!-- SVG Noise Filter (색상 밴딩 방지) -->
+  <svg aria-hidden="true" style="position:absolute;width:0;height:0">
+    <filter id="sigma-noise">
+      <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" />
+    </filter>
+  </svg>
+
+  <!-- Layer 0: Dark Base -->
+  <div class="sigma-bg-base" aria-hidden="true"></div>
+
+  <!-- Layer 1: Aurora Orbs VFX -->
+  <div class="sigma-bg-vfx sigma-bg-vfx--aurora-orbs" aria-hidden="true">
+    <div class="sigma-aurora-orb sigma-aurora-orb--blue"></div>
+    <div class="sigma-aurora-orb sigma-aurora-orb--purple"></div>
+    <div class="sigma-aurora-orb sigma-aurora-orb--cyan"></div>
+  </div>
+
+  <!-- Layer 2: Frosted Glass Blur -->
+  <div class="sigma-bg-blur" aria-hidden="true"></div>
+
+  <!-- App Content (z-index 2) -->
+  <div id="app">
+    <header>
+      <h1>🐄 농도원 목장 예약 모니터</h1>
+      <div id="monitor-status" class="status-bar"></div>
+    </header>
+
+    <main>
+      <!-- 월 선택 -->
+      <section class="card">
+        <h2>📅 모니터링 대상 월</h2>
+        <div class="month-selector">
+          <button id="prev-month" class="btn-icon">◀</button>
+          <span id="current-month-label"></span>
+          <button id="next-month" class="btn-icon">▶</button>
+        </div>
+        <div id="month-tags" class="tags"></div>
+      </section>
+
+      <!-- 예약 캘린더 -->
+      <section class="card">
+        <h2>🗓️ 예약 현황</h2>
+        <div id="calendar-view"></div>
+        <div class="actions">
+          <button id="btn-check-now" class="btn-primary">🔍 즉시 체크</button>
+          <button id="btn-fetch" class="btn-secondary">📥 실시간 조회</button>
+        </div>
+      </section>
+
+      <!-- 변경 이력 -->
+      <section class="card">
+        <h2>📜 변경 이력</h2>
+        <div id="history-list"></div>
+      </section>
+
+      <!-- 텔레그램 -->
+      <section class="card">
+        <h2>📱 텔레그램</h2>
+        <p id="telegram-status"></p>
+        <button id="btn-telegram-test" class="btn-secondary">테스트 메시지 전송</button>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>

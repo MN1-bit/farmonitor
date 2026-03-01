@@ -1,0 +1,67 @@
+/* ═════════════════════════════════════════════════════
+   Sigma Trading Semantic Colors — Tokyo Night Palette
+   Source: enkia/tokyo-night-vscode-theme
+   ═════════════════════════════════════════════════════ */
+:root {
+    /* Native UI 다크 테마 (select dropdown, scrollbar, checkbox 등) */
+    color-scheme: dark;
+
+    /* Panel / surface backgrounds */
+    --color-bg-panel: #16161e;
+    --color-bg-titlebar: #1a1b26;
+
+    /* Glassmorphism — tint 변수 (applyThemeToDOM에서 동적 설정) */
+    --sigma-tint-color: transparent;
+    --sigma-surface-rgb: 22, 22, 30;
+    --sigma-surface-opacity: 0.9;
+    --sigma-border-rgb: 122, 162, 247;
+    --color-border-panel: 1px solid rgba(var(--sigma-border-rgb), 0.19);
+    --color-surface-elevated: #1e202e;
+    --color-hover: #202330;
+
+    /* Dockview tab colors — applyThemeToDOM에서 동적 관리 */
+    --color-tab-active: #1a1b26;
+    --color-tab-inactive: #16161e;
+    --color-accent-blue: #7aa2f7;
+    --color-accent-blue-dim: rgba(var(--sigma-border-rgb), 0.12);
+    --color-accent-purple: #bb9af7;
+
+    /* Text */
+    --color-fg: #a9b1d6;
+    --color-fg-dim: #545f89;
+
+    /* Trading semantics */
+    --color-positive: #9ece6a;
+    --color-negative: #f7768e;
+    --color-warning: #e0af68;
+    --color-info: #7dcfff;
+
+    /* Semantic RGB fallbacks (applyThemeToDOM에서 동적 오버라이드) */
+    --sigma-positive-rgb: 158, 206, 106;
+    --sigma-negative-rgb: 247, 118, 142;
+    --sigma-warning-rgb: 224, 175, 104;
+
+    /* ── Visualization tokens (shared across all viz components) ── */
+    --viz-threshold-warning: 60;
+    --viz-threshold-critical: 85;
+
+    --viz-gauge-stroke: 12;
+    --viz-gauge-radius: 42;
+    --viz-gauge-size: 120;
+
+    --viz-glow-color: rgba(var(--sigma-border-rgb), 0.4);
+    --viz-glow-warning: rgba(var(--sigma-warning-rgb), 0.4);
+    --viz-glow-critical: rgba(var(--sigma-negative-rgb), 0.4);
+
+    --viz-sparkline-height: 48px;
+    --viz-sparkline-points: 60;
+
+    --viz-transition-speed: 190ms;
+}
+
+@theme inline {
+    --color-positive: var(--color-positive);
+    --color-negative: var(--color-negative);
+    --color-warning: var(--color-warning);
+    --color-info: var(--color-info);
+}

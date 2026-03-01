@@ -1,0 +1,793 @@
+/* ═══════════════════════════════════════════
+   BackgroundVFX — 메인 윈도우 배경 효과
+   Acrylic 대체: CSS animation으로 unfocus 면역
+   ═══════════════════════════════════════════ */
+
+/* ── Tint Overlay (body::before) ── */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-color: var(--sigma-tint-color, transparent);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* #root는 tint overlay 위에 */
+#root {
+    position: relative;
+    z-index: 2;
+}
+
+/* ── Base 레이어 — 어두운 배경 (VFX 밑 깔림) ── */
+.sigma-bg-base {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background: var(--sigma-vfx-bg-color, #0f0f17);
+    opacity: var(--sigma-vfx-bg-opacity, 0.85);
+}
+
+/* ── VFX 레이어 — 이펙트 (투명 배경 위 오브) ── */
+.sigma-bg-vfx {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: var(--sigma-vfx-opacity, 0.4);
+}
+
+/* Noise dithering — color banding 방지 (정적 텍스처, GPU 무부하) */
+.sigma-bg-vfx::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    filter: url(#sigma-noise);
+    opacity: 0.05;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+}
+
+/* ── Blur 레이어 — frosted glass (VFX 위, tint 아래) ── */
+.sigma-bg-blur {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background: transparent;
+    backdrop-filter: var(--sigma-vfx-blur, none);
+    -webkit-backdrop-filter: var(--sigma-vfx-blur, none);
+}
+
+/* ═══════════════════════════════════════════
+   Preset: Ambient Gradient
+   움직이는 다크 그라데이션. GPU-efficient CSS animation.
+   ═══════════════════════════════════════════ */
+.sigma-bg-vfx--ambient-gradient {
+    background: linear-gradient(-45deg,
+            rgba(50, 100, 220, 0.15),
+            rgba(120, 70, 210, 0.10),
+            rgba(30, 150, 210, 0.18),
+            rgba(80, 60, 180, 0.08),
+            rgba(50, 100, 220, 0.15));
+    background-size: 400% 400%;
+    animation: sigma-ambient-shift 20s ease infinite;
+}
+
+@keyframes sigma-ambient-shift {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    25% {
+        background-position: 100% 0%;
+    }
+
+    50% {
+        background-position: 100% 100%;
+    }
+
+    75% {
+        background-position: 0% 100%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* ═══════════════════════════════════════════
+   Preset: Aurora Orbs
+   3개의 컬러 오브가 화면을 떠돌며 위치를 교환하는 효과.
+   Tokyo Night accent 색상: blue / purple / cyan.
+   GPU-efficient: transform만 animate.
+   배경은 투명 — base layer가 어둠을 담당.
+   ═══════════════════════════════════════════ */
+.sigma-bg-vfx--aurora-orbs {
+    background: transparent;
+    overflow: hidden;
+}
+
+.sigma-aurora-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    will-change: transform;
+}
+
+/* Blue orb — 좌상단에서 출발, 대각선으로 흘러 우하단까지 갔다가 돌아옴 */
+.sigma-aurora-orb--blue {
+    width: 60vmax;
+    height: 60vmax;
+    top: -15%;
+    left: -10%;
+    background: radial-gradient(circle, rgba(50, 100, 220, 0.40) 0%, transparent 70%);
+    animation: sigma-aurora-flow-blue 160s ease-in-out infinite;
+}
+
+/* Purple orb — 우하단에서 출발, blue와 반대 방향으로 흐름 (위치 교환) */
+.sigma-aurora-orb--purple {
+    width: 65vmax;
+    height: 65vmax;
+    bottom: -20%;
+    right: -10%;
+    background: radial-gradient(circle, rgba(120, 70, 210, 0.35) 0%, transparent 70%);
+    animation: sigma-aurora-flow-purple 200s ease-in-out infinite;
+}
+
+/* Cyan orb — 중앙을 가로지르며 weave */
+.sigma-aurora-orb--cyan {
+    width: 50vmax;
+    height: 50vmax;
+    top: 20%;
+    left: 25%;
+    background: radial-gradient(circle, rgba(30, 150, 210, 0.30) 0%, transparent 70%);
+    animation: sigma-aurora-flow-cyan 150s ease-in-out infinite;
+}
+
+/* Blue: 좌상 → (빠르게 중앙 통과) → 우하 → 우상 → (빠르게 중앙 통과) → 좌하 → 좌상 */
+@keyframes sigma-aurora-flow-blue {
+    0% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    /* 좌상에서 천천히 출발 */
+    18% {
+        transform: translate(15%, 5%) scale(1.05);
+    }
+
+    /* 중앙 빠르게 통과 (~3s) */
+    20% {
+        transform: translate(45%, 30%) scale(0.95);
+    }
+
+    /* 우하 가장자리에서 천천히 머무름 */
+    38% {
+        transform: translate(75%, 60%) scale(1.1);
+    }
+
+    48% {
+        transform: translate(70%, 55%) scale(1.05);
+    }
+
+    /* 우상으로 이동 */
+    58% {
+        transform: translate(65%, -5%) scale(0.9);
+    }
+
+    /* 중앙 빠르게 통과 (~3s) */
+    60% {
+        transform: translate(35%, 25%) scale(1);
+    }
+
+    /* 좌하 가장자리에서 천천히 머무름 */
+    78% {
+        transform: translate(-5%, 60%) scale(1.15);
+    }
+
+    88% {
+        transform: translate(-10%, 45%) scale(1.05);
+    }
+
+    /* 좌상으로 복귀 */
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+}
+
+/* Purple: 우하 → (빠르게 중앙 통과) → 좌상 → 좌하 → (빠르게 중앙 통과) → 우상 → 우하 */
+@keyframes sigma-aurora-flow-purple {
+    0% {
+        transform: translate(0, 0) scale(1.05);
+    }
+
+    /* 우하에서 천천히 출발 */
+    15% {
+        transform: translate(-15%, -10%) scale(1);
+    }
+
+    /* 중앙 빠르게 통과 (~4s) */
+    17% {
+        transform: translate(-40%, -35%) scale(0.95);
+    }
+
+    /* 좌상 가장자리에서 천천히 머무름 */
+    35% {
+        transform: translate(-70%, -55%) scale(1.1);
+    }
+
+    45% {
+        transform: translate(-65%, -50%) scale(1.05);
+    }
+
+    /* 좌하로 이동 */
+    55% {
+        transform: translate(-60%, 10%) scale(0.9);
+    }
+
+    /* 중앙 빠르게 통과 (~4s) */
+    57% {
+        transform: translate(-30%, -20%) scale(1);
+    }
+
+    /* 우상 가장자리에서 천천히 머무름 */
+    75% {
+        transform: translate(10%, -60%) scale(1.1);
+    }
+
+    88% {
+        transform: translate(5%, -40%) scale(1.05);
+    }
+
+    100% {
+        transform: translate(0, 0) scale(1.05);
+    }
+}
+
+/* Cyan: 가장자리를 따라 느리게 순환, 중앙은 빠르게 횡단 */
+@keyframes sigma-aurora-flow-cyan {
+    0% {
+        transform: translate(0, 0) scale(0.9);
+    }
+
+    /* 우상 가장자리 */
+    20% {
+        transform: translate(40%, -30%) scale(1.05);
+    }
+
+    28% {
+        transform: translate(45%, -35%) scale(1.1);
+    }
+
+    /* 중앙 빠르게 통과 (~3s) */
+    30% {
+        transform: translate(15%, -5%) scale(0.95);
+    }
+
+    /* 좌하 가장자리 */
+    48% {
+        transform: translate(-30%, 35%) scale(1.15);
+    }
+
+    58% {
+        transform: translate(-25%, 40%) scale(1.1);
+    }
+
+    /* 중앙 빠르게 통과 (~3s) */
+    60% {
+        transform: translate(5%, 10%) scale(0.9);
+    }
+
+    /* 우하 가장자리 */
+    78% {
+        transform: translate(35%, 30%) scale(1.05);
+    }
+
+    88% {
+        transform: translate(30%, 25%) scale(1);
+    }
+
+    100% {
+        transform: translate(0, 0) scale(0.9);
+    }
+}
+
+/* ═══════════════════════════════════════════
+   Preset: Nebula Drift
+   따뜻한/차가운 radial 패치가 느리게 교차하며 떠다니는 효과.
+   배경 투명, radial-gradient overlay만 animate.
+   ═══════════════════════════════════════════ */
+.sigma-bg-vfx--nebula-drift {
+    background: transparent;
+    overflow: hidden;
+}
+
+.sigma-nebula-patch {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px);
+    will-change: transform, opacity;
+}
+
+.sigma-nebula-patch--warm {
+    width: 70vmax;
+    height: 70vmax;
+    top: -20%;
+    right: -15%;
+    background: radial-gradient(circle, rgba(255, 120, 50, 0.35) 0%, transparent 70%);
+    animation: sigma-nebula-warm 180s ease-in-out infinite;
+}
+
+.sigma-nebula-patch--cool {
+    width: 65vmax;
+    height: 65vmax;
+    bottom: -25%;
+    left: -10%;
+    background: radial-gradient(circle, rgba(80, 140, 255, 0.35) 0%, transparent 70%);
+    animation: sigma-nebula-cool 220s ease-in-out infinite;
+}
+
+.sigma-nebula-patch--accent {
+    width: 50vmax;
+    height: 50vmax;
+    top: 30%;
+    left: 40%;
+    background: radial-gradient(circle, rgba(180, 80, 220, 0.30) 0%, transparent 70%);
+    animation: sigma-nebula-accent 150s ease-in-out infinite;
+}
+
+@keyframes sigma-nebula-warm {
+    0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0.8;
+    }
+
+    30% {
+        transform: translate(-30%, 20%) scale(1.2);
+        opacity: 1;
+    }
+
+    60% {
+        transform: translate(-50%, -10%) scale(0.9);
+        opacity: 0.6;
+    }
+
+    100% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0.8;
+    }
+}
+
+@keyframes sigma-nebula-cool {
+    0% {
+        transform: translate(0, 0) scale(1.1);
+        opacity: 0.7;
+    }
+
+    35% {
+        transform: translate(25%, -15%) scale(0.85);
+        opacity: 1;
+    }
+
+    65% {
+        transform: translate(40%, 25%) scale(1.15);
+        opacity: 0.5;
+    }
+
+    100% {
+        transform: translate(0, 0) scale(1.1);
+        opacity: 0.7;
+    }
+}
+
+@keyframes sigma-nebula-accent {
+    0% {
+        transform: translate(0, 0) scale(0.9);
+        opacity: 0.6;
+    }
+
+    40% {
+        transform: translate(-20%, -25%) scale(1.1);
+        opacity: 0.9;
+    }
+
+    70% {
+        transform: translate(15%, 15%) scale(1.05);
+        opacity: 0.4;
+    }
+
+    100% {
+        transform: translate(0, 0) scale(0.9);
+        opacity: 0.6;
+    }
+}
+
+/* ═══════════════════════════════════════════
+   Preset: Plasma Waves
+   수평 파도 형태의 반투명 레이어가 겹치며 흐르는 효과.
+   ═══════════════════════════════════════════ */
+.sigma-bg-vfx--plasma-waves {
+    background: transparent;
+    overflow: hidden;
+}
+
+.sigma-plasma-wave {
+    position: absolute;
+    left: -10%;
+    width: 120%;
+    height: 40%;
+    border-radius: 50% / 100%;
+    filter: blur(60px);
+    will-change: transform;
+}
+
+.sigma-plasma-wave--top {
+    top: -15%;
+    background: linear-gradient(90deg,
+            transparent 0%,
+            rgba(100, 180, 255, 0.30) 30%,
+            rgba(140, 100, 255, 0.25) 70%,
+            transparent 100%);
+    animation: sigma-plasma-flow 25s ease-in-out infinite;
+}
+
+.sigma-plasma-wave--mid {
+    top: 30%;
+    background: linear-gradient(90deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.15) 40%,
+            rgba(80, 200, 180, 0.25) 60%,
+            transparent 100%);
+    animation: sigma-plasma-flow 35s ease-in-out infinite reverse;
+}
+
+.sigma-plasma-wave--bottom {
+    bottom: -15%;
+    background: linear-gradient(90deg,
+            transparent 0%,
+            rgba(200, 80, 160, 0.25) 35%,
+            rgba(100, 140, 255, 0.30) 65%,
+            transparent 100%);
+    animation: sigma-plasma-flow 30s ease-in-out infinite;
+    animation-delay: -10s;
+}
+
+@keyframes sigma-plasma-flow {
+    0% {
+        transform: translateX(-8%) scaleY(1);
+    }
+
+    25% {
+        transform: translateX(5%) scaleY(1.3);
+    }
+
+    50% {
+        transform: translateX(8%) scaleY(0.8);
+    }
+
+    75% {
+        transform: translateX(-3%) scaleY(1.2);
+    }
+
+    100% {
+        transform: translateX(-8%) scaleY(1);
+    }
+}
+
+/* ═══════════════════════════════════════════
+   Preset: Matrix Rain
+   수직 스트릭 라인들이 위→아래로 천천히 흐르는 효과.
+   ═══════════════════════════════════════════ */
+.sigma-bg-vfx--matrix-rain {
+    background: transparent;
+    overflow: hidden;
+}
+
+.sigma-matrix-col {
+    position: absolute;
+    top: -120%;
+    width: 1px;
+    height: 250%;
+    will-change: transform;
+    filter: blur(1px);
+    opacity: 0.6;
+    background: linear-gradient(180deg,
+            transparent 0%,
+            rgba(80, 255, 160, 0.0) 30%,
+            rgba(80, 255, 160, 0.30) 50%,
+            rgba(80, 255, 160, 0.0) 70%,
+            transparent 100%);
+}
+
+.sigma-matrix-col:nth-child(1) {
+    left: 1.2%;
+    animation: sigma-matrix-fall 12s linear infinite;
+    animation-delay: -1s;
+    opacity: 0.4;
+}
+
+.sigma-matrix-col:nth-child(2) {
+    left: 3.8%;
+    animation: sigma-matrix-fall 18s linear infinite;
+    animation-delay: -9s;
+    opacity: 0.7;
+}
+
+.sigma-matrix-col:nth-child(3) {
+    left: 5.5%;
+    animation: sigma-matrix-fall 14s linear infinite;
+    animation-delay: -4s;
+}
+
+.sigma-matrix-col:nth-child(4) {
+    left: 8.1%;
+    animation: sigma-matrix-fall 21s linear infinite;
+    animation-delay: -15s;
+    opacity: 0.3;
+}
+
+.sigma-matrix-col:nth-child(5) {
+    left: 11.3%;
+    animation: sigma-matrix-fall 11s linear infinite;
+    animation-delay: -7s;
+    opacity: 0.8;
+}
+
+.sigma-matrix-col:nth-child(6) {
+    left: 14.7%;
+    animation: sigma-matrix-fall 16s linear infinite;
+    animation-delay: -2s;
+}
+
+.sigma-matrix-col:nth-child(7) {
+    left: 17.2%;
+    animation: sigma-matrix-fall 23s linear infinite;
+    animation-delay: -18s;
+    opacity: 0.5;
+}
+
+.sigma-matrix-col:nth-child(8) {
+    left: 19.9%;
+    animation: sigma-matrix-fall 13s linear infinite;
+    animation-delay: -6s;
+    opacity: 0.4;
+}
+
+.sigma-matrix-col:nth-child(9) {
+    left: 22.4%;
+    animation: sigma-matrix-fall 19s linear infinite;
+    animation-delay: -11s;
+}
+
+.sigma-matrix-col:nth-child(10) {
+    left: 25.8%;
+    animation: sigma-matrix-fall 15s linear infinite;
+    animation-delay: -3s;
+    opacity: 0.7;
+}
+
+.sigma-matrix-col:nth-child(11) {
+    left: 28.1%;
+    animation: sigma-matrix-fall 22s linear infinite;
+    animation-delay: -14s;
+    opacity: 0.3;
+}
+
+.sigma-matrix-col:nth-child(12) {
+    left: 31.5%;
+    animation: sigma-matrix-fall 10s linear infinite;
+    animation-delay: -8s;
+    opacity: 0.9;
+}
+
+.sigma-matrix-col:nth-child(13) {
+    left: 34.3%;
+    animation: sigma-matrix-fall 17s linear infinite;
+    animation-delay: -5s;
+}
+
+.sigma-matrix-col:nth-child(14) {
+    left: 37.7%;
+    animation: sigma-matrix-fall 24s linear infinite;
+    animation-delay: -20s;
+    opacity: 0.4;
+}
+
+.sigma-matrix-col:nth-child(15) {
+    left: 40.2%;
+    animation: sigma-matrix-fall 12s linear infinite;
+    animation-delay: -10s;
+    opacity: 0.6;
+}
+
+.sigma-matrix-col:nth-child(16) {
+    left: 43.9%;
+    animation: sigma-matrix-fall 20s linear infinite;
+    animation-delay: -1s;
+}
+
+.sigma-matrix-col:nth-child(17) {
+    left: 46.1%;
+    animation: sigma-matrix-fall 14s linear infinite;
+    animation-delay: -13s;
+    opacity: 0.5;
+}
+
+.sigma-matrix-col:nth-child(18) {
+    left: 49.5%;
+    animation: sigma-matrix-fall 18s linear infinite;
+    animation-delay: -7s;
+    opacity: 0.8;
+}
+
+.sigma-matrix-col:nth-child(19) {
+    left: 52.8%;
+    animation: sigma-matrix-fall 11s linear infinite;
+    animation-delay: -16s;
+    opacity: 0.3;
+}
+
+.sigma-matrix-col:nth-child(20) {
+    left: 55.3%;
+    animation: sigma-matrix-fall 21s linear infinite;
+    animation-delay: -4s;
+}
+
+.sigma-matrix-col:nth-child(21) {
+    left: 58.7%;
+    animation: sigma-matrix-fall 15s linear infinite;
+    animation-delay: -12s;
+    opacity: 0.7;
+}
+
+.sigma-matrix-col:nth-child(22) {
+    left: 61.4%;
+    animation: sigma-matrix-fall 13s linear infinite;
+    animation-delay: -9s;
+    opacity: 0.4;
+}
+
+.sigma-matrix-col:nth-child(23) {
+    left: 64.9%;
+    animation: sigma-matrix-fall 19s linear infinite;
+    animation-delay: -2s;
+}
+
+.sigma-matrix-col:nth-child(24) {
+    left: 67.2%;
+    animation: sigma-matrix-fall 16s linear infinite;
+    animation-delay: -17s;
+    opacity: 0.5;
+}
+
+.sigma-matrix-col:nth-child(25) {
+    left: 71.1%;
+    animation: sigma-matrix-fall 22s linear infinite;
+    animation-delay: -6s;
+    opacity: 0.6;
+}
+
+.sigma-matrix-col:nth-child(26) {
+    left: 74.6%;
+    animation: sigma-matrix-fall 10s linear infinite;
+    animation-delay: -14s;
+    opacity: 0.9;
+}
+
+.sigma-matrix-col:nth-child(27) {
+    left: 78.3%;
+    animation: sigma-matrix-fall 17s linear infinite;
+    animation-delay: -3s;
+}
+
+.sigma-matrix-col:nth-child(28) {
+    left: 82.9%;
+    animation: sigma-matrix-fall 25s linear infinite;
+    animation-delay: -19s;
+    opacity: 0.3;
+}
+
+.sigma-matrix-col:nth-child(29) {
+    left: 88.4%;
+    animation: sigma-matrix-fall 13s linear infinite;
+    animation-delay: -8s;
+    opacity: 0.7;
+}
+
+.sigma-matrix-col:nth-child(30) {
+    left: 94.7%;
+    animation: sigma-matrix-fall 20s linear infinite;
+    animation-delay: -11s;
+    opacity: 0.5;
+}
+
+@keyframes sigma-matrix-fall {
+    0% {
+        transform: translateY(0);
+    }
+
+    100% {
+        transform: translateY(48%);
+    }
+}
+
+/* ═══════════════════════════════════════════
+   Preset: Starfield
+   반짝이는 작은 별들이 화면에 산재된 효과.
+   CSS-only, pseudo + box-shadow로 구현.
+   ═══════════════════════════════════════════ */
+.sigma-bg-vfx--starfield {
+    background: transparent;
+    overflow: hidden;
+}
+
+.sigma-starfield-layer {
+    position: absolute;
+    inset: 0;
+    will-change: opacity;
+}
+
+/* 각 레이어에 box-shadow로 별 위치 지정 */
+.sigma-starfield-layer--near {
+    animation: sigma-star-twinkle 4s ease-in-out infinite;
+}
+
+.sigma-starfield-layer--near::after {
+    content: '';
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    border-radius: 50%;
+    box-shadow:
+        120px 80px 0 1px rgba(255, 255, 255, 0.45),
+        350px 150px 0 1px rgba(255, 255, 255, 0.35),
+        580px 60px 0 1px rgba(255, 255, 255, 0.50),
+        200px 300px 0 1px rgba(255, 255, 255, 0.30),
+        750px 250px 0 1px rgba(255, 255, 255, 0.40),
+        900px 180px 0 1px rgba(255, 255, 255, 0.45),
+        450px 400px 0 1px rgba(255, 255, 255, 0.32),
+        100px 500px 0 1px rgba(255, 255, 255, 0.38),
+        650px 450px 0 1px rgba(255, 255, 255, 0.48),
+        300px 550px 0 1px rgba(255, 255, 255, 0.30),
+        800px 500px 0 1px rgba(255, 255, 255, 0.42),
+        500px 200px 0 1px rgba(255, 255, 255, 0.35);
+}
+
+.sigma-starfield-layer--far {
+    animation: sigma-star-twinkle 6s ease-in-out infinite;
+    animation-delay: -2s;
+}
+
+.sigma-starfield-layer--far::after {
+    content: '';
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    border-radius: 50%;
+    box-shadow:
+        70px 120px 0 1px rgba(180, 200, 255, 0.25),
+        250px 280px 0 1px rgba(180, 200, 255, 0.18),
+        430px 90px 0 1px rgba(180, 200, 255, 0.28),
+        610px 340px 0 1px rgba(180, 200, 255, 0.22),
+        180px 420px 0 1px rgba(180, 200, 255, 0.30),
+        780px 100px 0 1px rgba(180, 200, 255, 0.20),
+        340px 500px 0 1px rgba(180, 200, 255, 0.25),
+        560px 550px 0 1px rgba(180, 200, 255, 0.22),
+        850px 380px 0 1px rgba(180, 200, 255, 0.28),
+        950px 450px 0 1px rgba(180, 200, 255, 0.18),
+        150px 200px 0 1px rgba(180, 200, 255, 0.25),
+        700px 150px 0 1px rgba(180, 200, 255, 0.22);
+}
+
+@keyframes sigma-star-twinkle {
+
+    0%,
+    100% {
+        opacity: 0.6;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}

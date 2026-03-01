@@ -1,0 +1,28 @@
+{
+    "name": "farmonitor",
+    "version": "1.0.0",
+    "description": "농도원 목장 예약 취소 모니터 - 텔레그램 알림",
+    "type": "module",
+    "main": "src/index.js",
+    "scripts": {
+        "start": "node src/index.js",
+        "dev": "node --watch src/index.js",
+        "test:scraper": "node src/scraper.js --test"
+    },
+    "keywords": [
+        "monitor",
+        "reservation",
+        "telegram"
+    ],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "axios": "^1.7.0",
+        "cheerio": "^1.0.0",
+        "dotenv": "^16.4.0",
+        "express": "^4.21.0",
+        "node-cron": "^3.0.3",
+        "node-telegram-bot-api": "^0.66.0",
+        "web-push": "^3.6.7"
+    }
+}
