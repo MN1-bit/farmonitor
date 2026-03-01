@@ -1,6 +1,6 @@
 // 농도원 목장 모니터 — Service Worker (Web Push + Offline Cache)
 
-const CACHE_NAME = 'farmonitor-v1';
+const CACHE_NAME = 'farmonitor-v3';
 const STATIC_ASSETS = [
     '/',
     '/index.html',

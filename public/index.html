@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#0f0f14">
-  <title>🐄 농도원 목장 모니터</title>
+  <title>농도원 farmonitor_v1.0</title>
 
   <!-- PWA -->
   <link rel="manifest" href="/manifest.json">
@@ -48,7 +48,8 @@
   <!-- App Content (z-index 2) -->
   <div id="app">
     <header>
-      <h1>🐄 농도원 목장 예약 모니터</h1>
+      <h1>농도원 farmonitor_v1.0</h1>
+      <p id="last-updated" class="last-updated">마지막: -</p>
       <div id="monitor-status" class="status-bar"></div>
     </header>
 
@@ -73,8 +74,12 @@
 
       <!-- 변경 이력 -->
       <section class="card">
-        <h2>📜 변경 이력</h2>
+        <div class="section-header">
+          <h2>📜 변경 이력</h2>
+          <button id="btn-full-log" class="btn-secondary btn-xs">Full Log</button>
+        </div>
         <div id="history-list"></div>
+        <div id="server-log" class="server-log" style="display:none"></div>
       </section>
 
       <!-- 텔레그램 상태 -->

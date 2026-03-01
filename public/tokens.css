@@ -13,7 +13,7 @@
 
     /* ── Glassmorphism ── */
     --sigma-surface-rgb: 22, 22, 30;
-    --sigma-surface-opacity: 0.75;
+    --sigma-surface-opacity: 0.45;
     --sigma-border-rgb: 122, 162, 247;
     --color-border-panel: 1px solid rgba(var(--sigma-border-rgb), 0.19);
 

@@ -17,6 +17,26 @@ let isChecking = false;
 let lastCheckTime = null;
 let lastCheckResult = null;
 let checkCount = 0;
+let currentInterval = 10;
+
+// ─── Server Log Capture ───────────────
+const serverLogs = [];
+const MAX_LOGS = 500;
+const _origLog = console.log.bind(console);
+const _origWarn = console.warn.bind(console);
+const _origError = console.error.bind(console);
+
+function captureLog(level, args) {
+    const msg = args.map(a => typeof a === 'string' ? a : JSON.stringify(a)).join(' ');
+    serverLogs.push({ t: new Date().toISOString(), l: level, m: msg });
+    if (serverLogs.length > MAX_LOGS) serverLogs.shift();
+}
+
+console.log = (...args) => { captureLog('info', args); _origLog(...args); };
+console.warn = (...args) => { captureLog('warn', args); _origWarn(...args); };
+console.error = (...args) => { captureLog('error', args); _origError(...args); };
+
+export function getServerLogs() { return serverLogs; }
 
 /**
  * data 디렉토리 초기화
@@ -245,6 +265,7 @@ export async function startMonitoring(intervalSeconds = 10) {
         cronJob = cron.schedule(cronExpression, () => performCheck());
     }
 
+    currentInterval = intervalSeconds;
     console.log(`⏰ ${intervalSeconds}초 간격으로 모니터링 중...`);
 }
 
@@ -270,6 +291,7 @@ export function getMonitorStatus() {
         lastCheckResult,
         checkCount,
         telegramActive: isTelegramActive(),
+        intervalSeconds: currentInterval,
     };
 }
 

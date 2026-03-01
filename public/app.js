@@ -50,13 +50,24 @@ async function refreshStatus() {
     try {
         const { monitor } = await apiGet('/api/status');
         const el = document.getElementById('monitor-status');
-        const running = monitor.isRunning ? '🟢 모니터링 중' : '🔴 중지';
-        const tg = monitor.telegramActive ? '📱 연결' : '📱 미연결';
+        const lastUpdatedEl = document.getElementById('last-updated');
+        const dot = monitor.isRunning
+            ? '<span class="pulse-dot pulse-dot--active"></span>'
+            : '<span class="pulse-dot pulse-dot--stopped"></span>';
+        const running = monitor.isRunning ? '모니터링 중' : '중지';
+        const tgDot = monitor.telegramActive
+            ? '<span class="pulse-dot pulse-dot--active"></span>'
+            : '<span class="pulse-dot pulse-dot--dim"></span>';
+        const tg = monitor.telegramActive ? '연결' : '미연결';
         const count = monitor.checkCount || 0;
         const time = monitor.lastCheckTime
             ? new Date(monitor.lastCheckTime).toLocaleTimeString('ko-KR')
             : '-';
-        el.textContent = `${running} | ${tg} | 체크 #${count} | 마지막: ${time}`;
+        const interval = monitor.intervalSeconds || 10;
+        el.innerHTML = `${dot}${running} | ${tgDot}${tg} | 체크 #${count} | ✅Polling : ${interval}초간격`;
+        if (lastUpdatedEl) {
+            lastUpdatedEl.textContent = `마지막: ${time}`;
+        }
     } catch {
         document.getElementById('monitor-status').textContent = '⚠️ 서버 연결 실패';
     }
@@ -392,6 +403,34 @@ function init() {
         }, 2000);
     });
 
+    // Full Log 토글
+    let logVisible = false;
+    document.getElementById('btn-full-log')?.addEventListener('click', async () => {
+        const logEl = document.getElementById('server-log');
+        const historyEl = document.getElementById('history-list');
+        const btn = document.getElementById('btn-full-log');
+
+        if (logVisible) {
+            logEl.style.display = 'none';
+            historyEl.style.display = '';
+            btn.textContent = 'Full Log';
+            logVisible = false;
+        } else {
+            btn.textContent = '로딩...';
+            const { logs } = await apiGet('/api/logs');
+            logEl.innerHTML = [...logs].reverse().map(e => {
+                const t = new Date(e.t).toLocaleTimeString('ko-KR');
+                const cls = e.l === 'error' ? 'log-error' : e.l === 'warn' ? 'log-warn' : '';
+                return `<div class="log-line ${cls}"><span class="log-time">${t}</span>${e.m}</div>`;
+            }).join('');
+            logEl.style.display = 'block';
+            historyEl.style.display = 'none';
+            btn.textContent = '변경 이력';
+            logEl.scrollTop = 0;
+            logVisible = true;
+        }
+    });
+
     // 푸시 테스트
 
     // 초기 로드
@@ -402,11 +441,11 @@ function init() {
     loadHistory();
     if (document.getElementById('push-status')) initPushNotifications();
 
-    // 30초마다 자동 갱신
+    // 10초마다 자동 갱신
     setInterval(() => {
         refreshStatus();
-        renderAllCalendars(); // Assuming renderCalendar(selectedMonth) was a typo and should be renderAllCalendars()
-    }, 30000);
+        renderAllCalendars();
+    }, 10000);
 
     // 10초마다 텔레그램 상태 체크 (연결 대기 시)
     setInterval(refreshTelegramStatus, 10000);

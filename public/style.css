@@ -66,6 +66,13 @@ h1 {
   font-weight: 700;
   color: var(--color-fg);
   letter-spacing: -0.02em;
+  margin-bottom: 4px;
+}
+
+.last-updated {
+  font-size: 0.72rem;
+  color: var(--color-fg-dim);
+  opacity: 0.7;
   margin-bottom: 8px;
 }
 
@@ -88,6 +95,47 @@ h2 {
   border: 1px solid rgba(var(--sigma-border-rgb), 0.08);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+}
+
+/* ── Pulse Dot (status indicator) ── */
+.pulse-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+  position: relative;
+}
+
+.pulse-dot--active {
+  background: var(--color-positive);
+  box-shadow: 0 0 6px rgba(158, 206, 106, 0.6);
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.pulse-dot--stopped {
+  background: var(--color-negative);
+  box-shadow: 0 0 4px rgba(247, 118, 142, 0.4);
+}
+
+.pulse-dot--dim {
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: none;
+}
+
+@keyframes pulse-glow {
+
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 4px rgba(158, 206, 106, 0.4);
+  }
+
+  50% {
+    opacity: 0.6;
+    box-shadow: 0 0 12px rgba(158, 206, 106, 0.8);
+  }
 }
 
 /* ═══════ Card — Glassmorphism ═══════ */
@@ -464,6 +512,57 @@ h2 {
 .error-state {
   color: var(--color-negative);
   background: rgba(247, 118, 142, 0.06);
+}
+
+/* ═══════ Section Header ═══════ */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.section-header h2 {
+  margin-bottom: 0;
+}
+
+.btn-xs {
+  padding: 4px 10px;
+  font-size: 0.65rem;
+  border-radius: 8px;
+}
+
+/* ═══════ Server Log ═══════ */
+.server-log {
+  max-height: 400px;
+  overflow-y: auto;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 0.68rem;
+  line-height: 1.6;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+  border: 1px solid rgba(var(--sigma-border-rgb), 0.10);
+}
+
+.log-line {
+  padding: 2px 0;
+  color: var(--color-fg-dim);
+  word-break: break-all;
+}
+
+.log-time {
+  color: var(--color-accent-blue);
+  margin-right: 8px;
+  opacity: 0.7;
+}
+
+.log-error {
+  color: var(--color-negative);
+}
+
+.log-warn {
+  color: #e0af68;
 }
 
 /* ═══════ Telegram & Push ═══════ */

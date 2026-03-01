@@ -8,6 +8,7 @@ import {
     loadHistory,
     loadSettings,
     saveSettings,
+    getServerLogs,
 } from './monitor.js';
 
 import { sendAlert, sendTestMessage, isTelegramActive, updateChatId, getChatId, getMaskedChatId, getBotUsername } from './telegram.js';
@@ -76,6 +77,14 @@ app.get('/api/history', async (req, res) => {
     } catch (err) {
         res.status(500).json({ ok: false, error: err.message });
     }
+});
+
+/**
+ * GET /api/logs
+ * 서버 콘솔 로그 조회
+ */
+app.get('/api/logs', (req, res) => {
+    res.json({ ok: true, logs: getServerLogs() });
 });
 
 /**
