@@ -107,51 +107,75 @@ h2 {
   box-shadow: 0 0 20px rgba(var(--sigma-border-rgb), 0.06);
 }
 
-/* ═══════ Month Selector ═══════ */
-.month-selector {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-  margin-bottom: 14px;
+/* ═══════ Section Hint ═══════ */
+.section-hint {
+  font-size: 0.72rem;
+  color: var(--color-fg-dim);
+  opacity: 0.7;
+  margin-bottom: 12px;
 }
 
-#current-month-label {
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: var(--color-fg);
+/* ═══════ Month Grid (Multi-Select) ═══════ */
+.month-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.month-btn {
+  position: relative;
+  background: rgba(var(--sigma-surface-rgb), 0.5);
+  border: 1px solid rgba(var(--sigma-border-rgb), 0.12);
+  color: var(--color-fg-dim);
+  padding: 10px 6px;
+  border-radius: 12px;
   cursor: pointer;
-  padding: 4px 12px;
-  border-radius: 8px;
-  transition: background 0.2s ease, color 0.2s ease;
-}
-
-#current-month-label:hover {
-  background: var(--color-accent-blue-dim);
-  color: var(--color-accent-blue);
-}
-
-.btn-icon {
-  background: rgba(var(--sigma-surface-rgb), 0.6);
-  border: 1px solid rgba(var(--sigma-border-rgb), 0.15);
-  color: var(--color-fg);
-  padding: 8px 14px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: all 0.2s ease;
+  font-size: 0.85rem;
+  font-weight: 500;
+  font-family: inherit;
+  transition: all 0.25s ease;
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
 }
 
-.btn-icon:hover {
-  background: rgba(var(--sigma-border-rgb), 0.12);
-  border-color: rgba(var(--sigma-border-rgb), 0.30);
-  transform: scale(1.05);
+.month-btn:hover {
+  background: rgba(var(--sigma-border-rgb), 0.10);
+  border-color: rgba(var(--sigma-border-rgb), 0.28);
+  transform: scale(1.03);
 }
 
-.btn-icon:active {
-  transform: scale(0.95);
+.month-btn:active {
+  transform: scale(0.96);
+}
+
+.month-btn.active {
+  background: linear-gradient(135deg, rgba(122, 162, 247, 0.20), rgba(187, 154, 247, 0.15));
+  border-color: rgba(122, 162, 247, 0.45);
+  color: var(--color-accent-blue);
+  font-weight: 600;
+  box-shadow: 0 0 12px rgba(122, 162, 247, 0.10);
+}
+
+.month-btn.current {
+  border-color: rgba(158, 206, 106, 0.30);
+}
+
+.month-btn.current::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--color-positive);
+}
+
+.month-btn-year {
+  font-size: 0.6rem;
+  opacity: 0.5;
+  display: block;
+  margin-bottom: 1px;
 }
 
 /* ═══════ Tags ═══════ */
@@ -188,6 +212,25 @@ h2 {
 
 .tag .remove:hover {
   opacity: 1;
+}
+
+/* ═══════ Calendar Sections ═══════ */
+.calendar-section {
+  margin-bottom: 20px;
+}
+
+.calendar-section:last-child {
+  margin-bottom: 8px;
+}
+
+.calendar-month-header {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-accent-blue);
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(var(--sigma-border-rgb), 0.10);
+  letter-spacing: -0.01em;
 }
 
 /* ═══════ Calendar Grid ═══════ */
@@ -366,13 +409,102 @@ h2 {
   font-weight: 500;
 }
 
-/* ═══════ Telegram Section ═══════ */
-#telegram-status {
+/* ═══════ Notification Row ═══════ */
+.notification-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(var(--sigma-border-rgb), 0.08);
+}
+
+.notification-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.notification-label {
+  font-size: 0.82rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.notification-status {
+  flex: 1;
+  font-size: 0.75rem;
+  color: var(--color-fg-dim);
+  margin: 0;
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 0.72rem;
+  flex: none;
+}
+
+/* ═══════ States ═══════ */
+.empty-state,
+.loading-state,
+.error-state {
+  text-align: center;
+  padding: 20px;
+  font-size: 0.8rem;
+  border-radius: 10px;
+}
+
+.empty-state {
+  color: var(--color-fg-dim);
+  opacity: 0.7;
+}
+
+.loading-state {
+  color: var(--color-fg-dim);
+}
+
+.error-state {
+  color: var(--color-negative);
+  background: rgba(247, 118, 142, 0.06);
+}
+
+/* ═══════ Telegram & Push ═══════ */
+.connect-status {
   font-size: 0.82rem;
   margin-bottom: 12px;
-  padding: 8px 12px;
+  padding: 10px 14px;
   border-radius: 10px;
   background: rgba(var(--sigma-surface-rgb), 0.3);
+  border: 1px solid rgba(var(--sigma-border-rgb), 0.08);
+}
+
+.connect-status.connected {
+  border-color: rgba(158, 206, 106, 0.25);
+  background: rgba(158, 206, 106, 0.08);
+}
+
+.connect-status.disconnected {
+  border-color: rgba(247, 118, 142, 0.15);
+  background: rgba(247, 118, 142, 0.06);
+}
+
+.telegram-actions {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.telegram-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  text-align: center;
+}
+
+.input-hint {
+  font-size: 0.7rem;
+  color: var(--color-fg-dim);
+  opacity: 0.7;
+  line-height: 1.4;
 }
 
 /* ═══════ Utility ═══════ */

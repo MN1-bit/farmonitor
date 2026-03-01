@@ -1,5 +1,68 @@
-// 농도원 목장 모니터 — Service Worker (Web Push)
+// 농도원 목장 모니터 — Service Worker (Web Push + Offline Cache)
 
+const CACHE_NAME = 'farmonitor-v1';
+const STATIC_ASSETS = [
+    '/',
+    '/index.html',
+    '/style.css',
+    '/tokens.css',
+    '/aurora-vfx.css',
+    '/app.js',
+    '/icon-192.png',
+    '/icon-512.png',
+    '/manifest.json',
+];
+
+// ─── Install: 정적 자산 캐시 ─────────────────────
+self.addEventListener('install', (event) => {
+    event.waitUntil(
+        caches.open(CACHE_NAME).then((cache) => {
+            console.log('[SW] 정적 자산 캐싱');
+            return cache.addAll(STATIC_ASSETS);
+        })
+    );
+    self.skipWaiting();
+});
+
+// ─── Activate: 이전 캐시 정리 ────────────────────
+self.addEventListener('activate', (event) => {
+    event.waitUntil(
+        caches.keys().then((names) =>
+            Promise.all(
+                names
+                    .filter((name) => name !== CACHE_NAME)
+                    .map((name) => caches.delete(name))
+            )
+        )
+    );
+    self.clients.claim();
+});
+
+// ─── Fetch: Network-first (API), Cache-first (static) ──
+self.addEventListener('fetch', (event) => {
+    const url = new URL(event.request.url);
+
+    // API 요청은 항상 네트워크 우선
+    if (url.pathname.startsWith('/api/')) {
+        return;
+    }
+
+    // 정적 자산은 캐시 우선, 실패 시 네트워크
+    event.respondWith(
+        caches.match(event.request).then((cached) => {
+            return cached || fetch(event.request).then((response) => {
+                // 성공한 응답 캐시 업데이트
+                if (response.status === 200) {
+                    const clone = response.clone();
+                    caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+                }
+                return response;
+            });
+        })
+    );
+});
+
+// ─── Push: 알림 표시 ─────────────────────────────
 self.addEventListener('push', (event) => {
     let data = { title: '농도원 목장 모니터', body: '알림' };
 
@@ -29,6 +92,7 @@ self.addEventListener('push', (event) => {
     );
 });
 
+// ─── Notification Click ─────────────────────────
 self.addEventListener('notificationclick', (event) => {
     event.notification.close();
 

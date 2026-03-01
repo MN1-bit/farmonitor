@@ -9,8 +9,8 @@ import {
     loadSettings,
     saveSettings,
 } from './monitor.js';
-import { getReservationStatus } from './scraper.js';
-import { sendTestMessage, isTelegramActive } from './telegram.js';
+
+import { sendAlert, sendTestMessage, isTelegramActive, updateChatId, getChatId, getMaskedChatId, getBotUsername } from './telegram.js';
 import { addSubscription, removeSubscription, getVapidPublicKey, isWebPushActive, sendPushNotification } from './webpush.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -131,6 +131,24 @@ app.post('/api/settings', async (req, res) => {
     }
 });
 
+// ─── Telegram Routes ─────────────────────────────
+
+/**
+ * GET /api/telegram/status
+ * 텔레그램 봇 연결 상태 + 봇 링크
+ */
+app.get('/api/telegram/status', (req, res) => {
+    const username = getBotUsername();
+    res.json({
+        ok: true,
+        active: isTelegramActive(),
+        connected: !!getChatId(),
+        maskedChatId: getMaskedChatId(),
+        botUsername: username,
+        botLink: username ? `https://t.me/${username}` : null,
+    });
+});
+
 /**
  * POST /api/telegram-test
  * 텔레그램 테스트 메시지 전송
@@ -138,10 +156,43 @@ app.post('/api/settings', async (req, res) => {
 app.post('/api/telegram-test', async (req, res) => {
     try {
         if (!isTelegramActive()) {
-            return res.json({ ok: false, error: '텔레그램 봇이 설정되지 않았습니다' });
+            return res.json({ ok: false, error: '텔레그램 봇이 연결되지 않았습니다. 봇에게 /start를 보내주세요.' });
         }
         const result = await sendTestMessage();
         res.json({ ok: result });
+    } catch (err) {
+        res.status(500).json({ ok: false, error: err.message });
+    }
+});
+
+/**
+ * POST /api/mock-alert
+ * Mock 취소 알림 전송 (4월 5일 예약 가능 가정)
+ */
+app.post('/api/mock-alert', async (req, res) => {
+    try {
+        const mockSlots = [{
+            date: '2026-04-05',
+            day: '일',
+            status: '가능',
+            link: 'https://nongdowon.com/reservation',
+        }];
+
+        let tgResult = false;
+        let pushResult = 0;
+
+        if (isTelegramActive()) {
+            tgResult = await sendAlert(mockSlots);
+        }
+        if (isWebPushActive()) {
+            pushResult = await sendPushNotification(
+                '🚨 농도원 목장 예약 취소 알림!',
+                '🟢 2026-04-05 (일) — 예약 가능! ⚡ 빠르게 예약하세요!'
+            );
+        }
+
+        console.log(`🧪 Mock 알림 전송: TG=${tgResult}, Push=${pushResult}`);
+        res.json({ ok: true, telegram: tgResult, push: pushResult });
     } catch (err) {
         res.status(500).json({ ok: false, error: err.message });
     }

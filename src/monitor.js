@@ -86,7 +86,7 @@ export async function loadSettings() {
 
         return {
             targetMonths: [currentMonth, nextMonth],
-            intervalSeconds: 60,
+            intervalSeconds: 10,
         };
     }
 }
@@ -223,7 +223,7 @@ export async function performCheck() {
  * 모니터링 시작
  * @param {number} intervalSeconds - 체크 간격 (초)
  */
-export async function startMonitoring(intervalSeconds = 60) {
+export async function startMonitoring(intervalSeconds = 10) {
     await ensureDataDir();
 
     // 기존 작업 중지

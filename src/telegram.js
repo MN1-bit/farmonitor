@@ -2,22 +2,64 @@ import TelegramBot from 'node-telegram-bot-api';
 
 let bot = null;
 let chatId = null;
+let botUsername = null;
 
 /**
- * 텔레그램 봇 초기화
+ * 텔레그램 봇 초기화 (polling 모드 — /start 자동 감지)
  * @param {string} token - 봇 토큰
- * @param {string} targetChatId - 알림 대상 Chat ID
+ * @param {string} defaultChatId - 기본 Chat ID (.env에서)
  */
-export function initTelegram(token, targetChatId) {
+export function initTelegram(token, defaultChatId) {
     if (!token || token === 'your_bot_token_here') {
         console.warn('⚠️  텔레그램 봇 토큰이 설정되지 않았습니다. 알림이 비활성화됩니다.');
         console.warn('   → docs/Telegram_Bot_Setup_Guide.md 참고');
         return false;
     }
 
-    bot = new TelegramBot(token, { polling: false });
-    chatId = targetChatId;
-    console.log('✅ 텔레그램 봇 연결 완료');
+    bot = new TelegramBot(token, { polling: true });
+    chatId = defaultChatId || null;
+
+    // 봇 정보 조회 (username 확인)
+    bot.getMe().then(info => {
+        botUsername = info.username;
+        console.log(`✅ 텔레그램 봇 연결: @${botUsername} (polling 모드)`);
+    }).catch(err => {
+        console.error('⚠️  봇 정보 조회 실패:', err.message);
+    });
+
+    // /start 명령 수신 → 자동으로 Chat ID 저장
+    bot.onText(/\/start/, (msg) => {
+        chatId = String(msg.chat.id);
+        const name = msg.from.first_name || '사용자';
+        console.log(`📱 텔레그램 연결됨: ${name} (Chat ID: ${getMaskedChatId()})`);
+
+        bot.sendMessage(chatId,
+            `✅ *${name}님, 연결 완료!*\n\n` +
+            '🐄 농도원 목장 모니터와 연결되었습니다.\n' +
+            '예약 취소 물량이 발생하면 즉시 알림을 보내드릴게요!\n\n' +
+            '💡 _이 대화방을 나가지 마세요._',
+            { parse_mode: 'Markdown' }
+        );
+    });
+
+    // 일반 메시지 수신 시에도 Chat ID 갱신
+    bot.on('message', (msg) => {
+        if (!msg.text?.startsWith('/start')) {
+            chatId = String(msg.chat.id);
+        }
+    });
+
+    // polling 에러 핸들링
+    bot.on('polling_error', (err) => {
+        if (err.code !== 'ETELEGRAM' || !err.message?.includes('409')) {
+            console.error('⚠️  텔레그램 polling 오류:', err.message);
+        }
+    });
+
+    if (chatId) {
+        console.log(`✅ 텔레그램 봇 연결 완료 (기존 Chat ID: ${getMaskedChatId()})`);
+    }
+
     return true;
 }
 
@@ -26,6 +68,42 @@ export function initTelegram(token, targetChatId) {
  */
 export function isTelegramActive() {
     return bot !== null && chatId !== null;
+}
+
+/**
+ * 현재 Chat ID 조회
+ */
+export function getChatId() {
+    return chatId;
+}
+
+/**
+ * 봇 username 조회
+ */
+export function getBotUsername() {
+    return botUsername;
+}
+
+/**
+ * 마스킹된 Chat ID 반환 (앞 3자리만 노출)
+ */
+export function getMaskedChatId() {
+    if (!chatId) return null;
+    const id = String(chatId);
+    if (id.length <= 3) return id;
+    return id.substring(0, 3) + '*'.repeat(id.length - 3);
+}
+
+/**
+ * Chat ID 수동 설정
+ */
+export function updateChatId(newChatId) {
+    if (!newChatId || !/^\d+$/.test(String(newChatId))) {
+        return false;
+    }
+    chatId = String(newChatId);
+    console.log(`📱 텔레그램 Chat ID 수동 변경: ${getMaskedChatId()}`);
+    return true;
 }
 
 /**
